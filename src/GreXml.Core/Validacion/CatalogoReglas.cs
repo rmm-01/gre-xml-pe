@@ -45,4 +45,11 @@ public static class CatalogoReglas
     public static readonly Regla LicenciaConductorObligatoria = new("GRE-310", "2572");
 
     public static readonly Regla VentaDestinatarioIgualARemitente = new("GRE-401", "2555");
+    public static readonly Regla DestinatarioDebeSerRemitente = new("GRE-402", "2554");
+    public static readonly Regla PartidaIgualALlegada = new("GRE-403", null);
+    public static readonly Regla ProveedorObligatorio = new("GRE-404", "4375");
+    public static readonly Regla ProveedorNoCorresponde = new("GRE-405", "4054");
+    public static readonly Regla RucProveedorInvalido = new("GRE-406", null);
+    public static readonly Regla RazonSocialProveedorObligatoria = new("GRE-407", "3449");
+    public static readonly Regla ProveedorIgualARemitente = new("GRE-408", "4053");
 }

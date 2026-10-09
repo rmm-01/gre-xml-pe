@@ -11,5 +11,8 @@ public interface IReglasMotivo
     /// <summary>Código del catálogo 20 (ver <see cref="MotivosTraslado"/>).</summary>
     string Motivo { get; }
 
+    /// <summary>true si el motivo exige informar al proveedor; si es false, la guía no debe traerlo.</summary>
+    bool LlevaProveedor { get; }
+
     IEnumerable<ErrorValidacion> Validar(GuiaRemision guia);
 }

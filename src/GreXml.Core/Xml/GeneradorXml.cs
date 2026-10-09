@@ -42,6 +42,10 @@ public static class GeneradorXml
                 Parte(TiposDocumento.Ruc, guia.Remitente.Ruc, guia.Remitente.RazonSocial)),
             new XElement(Cac + "DeliveryCustomerParty",
                 Parte(guia.Destinatario.TipoDocumento, guia.Destinatario.NumeroDocumento, guia.Destinatario.Nombre)),
+            guia.Proveedor is null
+                ? null
+                : new XElement(Cac + "SellerSupplierParty",
+                    Parte(TiposDocumento.Ruc, guia.Proveedor.Ruc, guia.Proveedor.RazonSocial)),
             Envio(guia),
             guia.Bienes.Select((bien, i) => Linea(bien, i + 1))));
 

@@ -21,7 +21,8 @@ public sealed partial class GuiaValidador
     }
 
     /// <summary>Validador con todos los motivos que el proyecto soporta.</summary>
-    public static GuiaValidador ConMotivosSoportados() => new([new ReglasVenta()]);
+    public static GuiaValidador ConMotivosSoportados() =>
+        new([new ReglasVenta(), new ReglasCompra(), new ReglasTrasladoEstablecimientos()]);
 
     public IReadOnlyList<ErrorValidacion> Validar(GuiaRemision guia)
     {
@@ -34,7 +35,10 @@ public sealed partial class GuiaValidador
 
         // Las reglas del motivo solo se aplican si el motivo es uno de los soportados.
         if (_reglasPorMotivo.TryGetValue(guia.MotivoTraslado, out var reglasMotivo))
+        {
+            ValidarProveedor(guia, reglasMotivo.LlevaProveedor, errores);
             errores.AddRange(reglasMotivo.Validar(guia));
+        }
         else
             errores.Add(ErrorValidacion.De(R.MotivoNoSoportado, "motivoTraslado",
                 $"Motivo de traslado no soportado. Soportados: {string.Join(", ", _reglasPorMotivo.Keys)}."));
@@ -69,6 +73,33 @@ public sealed partial class GuiaValidador
         if (guia.Observaciones?.Length > MaxObservaciones)
             errores.Add(ErrorValidacion.De(R.ObservacionesDemasiadoLargas, "observaciones",
                 $"Las observaciones admiten hasta {MaxObservaciones} caracteres."));
+    }
+
+    /// <summary>Si el motivo lo pide, el proveedor es obligatorio y con datos válidos; si no, no debe venir.</summary>
+    private static void ValidarProveedor(GuiaRemision guia, bool llevaProveedor, List<ErrorValidacion> errores)
+    {
+        var proveedor = guia.Proveedor;
+
+        if (!llevaProveedor)
+        {
+            if (proveedor is not null)
+                errores.Add(ErrorValidacion.De(R.ProveedorNoCorresponde, "proveedor",
+                    "Para este motivo de traslado la guía no debe contener datos del proveedor."));
+            return;
+        }
+
+        if (proveedor is null)
+        {
+            errores.Add(ErrorValidacion.De(R.ProveedorObligatorio, "proveedor", "Para este motivo de traslado se debe indicar el proveedor."));
+            return;
+        }
+
+        if (!DocumentoIdentidad.EsRucValido(proveedor.Ruc))
+            errores.Add(ErrorValidacion.De(R.RucProveedorInvalido, "proveedor.ruc", "El RUC del proveedor no es válido."));
+
+        if (string.IsNullOrWhiteSpace(proveedor.RazonSocial))
+            errores.Add(ErrorValidacion.De(R.RazonSocialProveedorObligatoria, "proveedor.razonSocial",
+                "La razón social del proveedor es obligatoria."));
     }
 
     private static void ValidarTraslado(GuiaRemision guia, List<ErrorValidacion> errores)
