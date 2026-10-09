@@ -11,4 +11,8 @@
     <EmbeddedResource Include="Esquemas\**\*.xsd" LogicalName="Esquemas/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.20" />
+  </ItemGroup>
+
 </Project>
