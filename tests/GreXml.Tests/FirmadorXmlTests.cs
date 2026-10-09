@@ -1,20 +1,16 @@
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml;
 using GreXml.Core.Xml;
 
 namespace GreXml.Tests;
 
-/// <summary>
-/// Cada ejecución crea sus propios certificados autofirmados en memoria: el repositorio no guarda
-/// ningún .pfx ni contraseña.
-/// </summary>
+/// <summary>Cada ejecución crea sus propios certificados (ver <see cref="Certificados"/>).</summary>
 public sealed class FirmadorXmlTests : IDisposable
 {
     private const string Ds = "http://www.w3.org/2000/09/xmldsig#";
 
-    private readonly X509Certificate2 _certificado = CrearCertificado("CN=Remitente de prueba");
-    private readonly X509Certificate2 _otroCertificado = CrearCertificado("CN=Otra empresa");
+    private readonly X509Certificate2 _certificado = Certificados.Crear("CN=Remitente de prueba");
+    private readonly X509Certificate2 _otroCertificado = Certificados.Crear("CN=Otra empresa");
 
     private static string XmlSinFirmar() => GeneradorXml.GenerarTexto(GuiaEjemplo.VentaConTransportePrivado());
 
@@ -145,14 +141,6 @@ public sealed class FirmadorXmlTests : IDisposable
     {
         _certificado.Dispose();
         _otroCertificado.Dispose();
-    }
-
-    private static X509Certificate2 CrearCertificado(string sujeto)
-    {
-        using var rsa = RSA.Create(2048);
-        var solicitud = new CertificateRequest(sujeto, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-        var hoy = DateTimeOffset.UtcNow;
-        return solicitud.CreateSelfSigned(hoy.AddDays(-1), hoy.AddYears(1));
     }
 
     private static string Algoritmo(XmlDocument documento, string elemento) =>
