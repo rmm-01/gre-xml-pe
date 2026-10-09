@@ -8,6 +8,7 @@ internal static class GuiaEjemplo
     public const string RucRemitente = "20100000050";
     public const string RucDestinatario = "20100000068";
     public const string RucTransportista = "20100000076";
+    public const string RucProveedor = "20100000084";
 
     public static GuiaRemision VentaConTransportePrivado() => new()
     {
@@ -33,6 +34,23 @@ internal static class GuiaEjemplo
             Vehiculos = ["ABC123"],
             Conductores = [new Conductor(TiposDocumento.Dni, "12345678", "JUAN CARLOS", "PEREZ GOMEZ", "Q12345678")],
         },
+    };
+
+    /// <summary>El remitente recoge lo que compró y lo lleva a su almacén: destinatario = remitente, con proveedor.</summary>
+    public static GuiaRemision Compra() => VentaConTransportePrivado() with
+    {
+        MotivoTraslado = MotivosTraslado.Compra,
+        Destinatario = new Destinatario(TiposDocumento.Ruc, RucRemitente, "DISTRIBUIDORA EJEMPLO SAC"),
+        Proveedor = new Contribuyente(RucProveedor, "FABRICA INVENTADA SA"),
+        Partida = new PuntoTraslado("150103", "JR. DEL PROVEEDOR 789, ATE"),
+        Llegada = new PuntoTraslado("150101", "AV. LOS EJEMPLOS 123, LIMA"),
+    };
+
+    /// <summary>De la tienda de Lima al almacén de Arequipa, ambos del remitente.</summary>
+    public static GuiaRemision TrasladoEntreEstablecimientos() => VentaConTransportePrivado() with
+    {
+        MotivoTraslado = MotivosTraslado.TrasladoEntreEstablecimientos,
+        Destinatario = new Destinatario(TiposDocumento.Ruc, RucRemitente, "DISTRIBUIDORA EJEMPLO SAC"),
     };
 
     public static GuiaRemision VentaConTransportePublico() => VentaConTransportePrivado() with
