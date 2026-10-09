@@ -20,6 +20,9 @@ public sealed record GuiaRemision
     /// <summary>Quien recibe los bienes.</summary>
     public required Destinatario Destinatario { get; init; }
 
+    /// <summary>Quien vendió los bienes. Solo en el motivo 02 (compra), donde el remitente es el comprador.</summary>
+    public Contribuyente? Proveedor { get; init; }
+
     /// <summary>Código del catálogo 20 de SUNAT (por ejemplo, "01" = venta). Ver <see cref="MotivosTraslado"/>.</summary>
     public required string MotivoTraslado { get; init; }
 

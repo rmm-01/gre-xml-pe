@@ -4,11 +4,15 @@ namespace GreXml.Core.Modelo;
 public static class MotivosTraslado
 {
     public const string Venta = "01";
+    public const string Compra = "02";
+    public const string TrasladoEntreEstablecimientos = "04";
 
     /// <summary>Descripción que acompaña al código en el XML (cbc:HandlingInstructions).</summary>
     public static string Descripcion(string codigo) => codigo switch
     {
         Venta => "Venta",
+        Compra => "Compra",
+        TrasladoEntreEstablecimientos => "Traslado entre establecimientos de la misma empresa",
         _ => throw new ArgumentOutOfRangeException(nameof(codigo), codigo, "Motivo de traslado no soportado."),
     };
 }
