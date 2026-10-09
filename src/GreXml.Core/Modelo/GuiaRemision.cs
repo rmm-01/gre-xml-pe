@@ -12,6 +12,8 @@ public sealed record GuiaRemision
 
     public required DateOnly FechaEmision { get; init; }
 
+    public required TimeOnly HoraEmision { get; init; }
+
     /// <summary>Quien emite la guía y envía los bienes.</summary>
     public required Contribuyente Remitente { get; init; }
 
