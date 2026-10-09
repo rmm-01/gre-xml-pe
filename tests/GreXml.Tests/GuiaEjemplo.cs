@@ -14,6 +14,7 @@ internal static class GuiaEjemplo
         Serie = "T001",
         Numero = 1,
         FechaEmision = new DateOnly(2026, 10, 9),
+        HoraEmision = new TimeOnly(10, 30, 0),
         Remitente = new Contribuyente(RucRemitente, "DISTRIBUIDORA EJEMPLO SAC"),
         Destinatario = new Destinatario(TiposDocumento.Ruc, RucDestinatario, "COMERCIAL DE PRUEBA EIRL"),
         MotivoTraslado = MotivosTraslado.Venta,
