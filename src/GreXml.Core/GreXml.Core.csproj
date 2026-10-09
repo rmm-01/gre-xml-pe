@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- Esquemas UBL 2.1 dentro de la DLL: la validación no depende de archivos sueltos ni de internet. -->
+    <EmbeddedResource Include="Esquemas\**\*.xsd" LogicalName="Esquemas/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
 </Project>
