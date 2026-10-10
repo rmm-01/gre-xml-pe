@@ -1,0 +1,30 @@
+:root {
+  --color-primario: #1f4e79;
+  --color-ok: #1a7f37;
+  --color-error: #cf222e;
+  --color-suave: #6e7781;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  color: #1f2328;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+button,
+select,
+input {
+  font: inherit;
+  padding: 0.4rem 0.6rem;
+}
+
+button {
+  cursor: pointer;
+}

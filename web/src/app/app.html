@@ -1,0 +1,42 @@
+<header>
+  <h1>Guía de Remisión Electrónica</h1>
+  <p>Genera, firma y envía una guía a un SUNAT simulado. Nunca se conecta a SUNAT.</p>
+</header>
+
+<main>
+  <section class="acciones">
+    <label>
+      Motivo
+      <select [ngModel]="motivo()" (ngModelChange)="motivo.set($event)" name="motivo">
+        @for (m of motivos; track m.codigo) {
+          <option [value]="m.codigo">{{ m.codigo }} - {{ m.nombre }}</option>
+        }
+      </select>
+    </label>
+    <button type="button" (click)="cargarEjemplo()" [disabled]="cargando()">Cargar ejemplo</button>
+    <button type="button" (click)="validar()" [disabled]="cargando() || !guia()">Validar</button>
+  </section>
+
+  @if (errorConexion(); as mensaje) {
+    <p class="error" role="alert">{{ mensaje }}</p>
+  }
+
+  @if (validacion(); as resultado) {
+    @if (resultado.valida) {
+      <p class="ok">La guía cumple todas las reglas.</p>
+    } @else {
+      <ul class="errores">
+        @for (e of resultado.errores; track e.codigo + e.campo) {
+          <li>
+            <code>{{ e.campo }}</code> {{ e.mensaje }}
+            <small>{{ e.codigo }}{{ e.codigoSunat ? ' · SUNAT ' + e.codigoSunat : '' }}</small>
+          </li>
+        }
+      </ul>
+    }
+  }
+
+  @if (guia(); as g) {
+    <pre class="json">{{ g | json }}</pre>
+  }
+</main>
