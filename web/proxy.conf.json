@@ -1,0 +1,4 @@
+{
+  "/guias": { "target": "http://localhost:5142", "secure": false },
+  "/envios": { "target": "http://localhost:5142", "secure": false }
+}
