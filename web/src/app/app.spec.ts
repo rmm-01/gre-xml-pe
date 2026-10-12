@@ -77,6 +77,159 @@ describe('App', () => {
     const error = elemento.querySelector('.errores li')?.textContent;
     expect(error).toContain('serie');
     expect(error).toContain('SUNAT 1001');
+
+    // El mismo error aparece junto al campo, y se va cuando el usuario corrige la serie.
+    expect(serie.closest('label')?.querySelector('.error-campo')?.textContent).toContain('GRE-101');
+    expect(serie.classList).toContain('ng-invalid');
+    serie.value = 'T001';
+    serie.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+    expect(serie.closest('label')?.querySelector('.error-campo')).toBeNull();
+  });
+
+  it('marca el error en la fila del bien y arriba de la lista de vehículos', async () => {
+    const { fixture, elemento, boton, seccion } = await crear();
+    boton('Cargar ejemplo').click();
+    http.expectOne((r) => r.url === '/guias/ejemplo').flush(guiaDeVenta());
+    await fixture.whenStable();
+
+    boton('Generar XML').click();
+    http.expectOne('/guias/generar').flush(
+      {
+        valida: false,
+        errores: [
+          {
+            codigo: 'GRE-208',
+            codigoSunat: null,
+            campo: 'bienes[1].cantidad',
+            mensaje: 'Cantidad',
+          },
+          {
+            codigo: 'GRE-304',
+            codigoSunat: '1067',
+            campo: 'transporte.vehiculos',
+            mensaje: 'Sin vehículos',
+          },
+        ],
+      },
+      { status: 422, statusText: 'Unprocessable Entity' },
+    );
+    await fixture.whenStable();
+
+    const filas = seccion('bienes')!.querySelectorAll('.fila');
+    expect(filas[0].querySelector('.error-campo')).toBeNull();
+    expect(filas[1].querySelector('.error-campo')?.textContent).toContain('GRE-208');
+    // El error de una lista completa va arriba de la sección, no dentro de una fila.
+    const errorDeSeccion = seccion('vehiculos')!.querySelector(':scope > app-error-campo');
+    expect(errorDeSeccion?.textContent).toContain('GRE-304');
+    expect(seccion('vehiculos')!.querySelector('.fila .error-campo')).toBeNull();
+    expect(elemento.querySelector('[data-panel=generacion]')).toBeNull();
+  });
+
+  it('muestra el XML generado y sus comprobaciones', async () => {
+    const { fixture, elemento, boton } = await crear();
+
+    boton('Generar XML').click();
+    http.expectOne('/guias/generar').flush({
+      nombreArchivo: '20100000050-09-T001-1.zip',
+      xmlFirmado: '<DespatchAdvice>firmado</DespatchAdvice>',
+      cumpleEsquema: true,
+      erroresEsquema: [],
+      firmaValida: true,
+      zipBase64: 'UEsDBA==',
+      hashZip: 'abc123',
+    });
+    await fixture.whenStable();
+
+    const panel = elemento.querySelector('[data-panel=generacion]')!;
+    expect(panel.querySelector('.xml')?.textContent).toContain(
+      '<DespatchAdvice>firmado</DespatchAdvice>',
+    );
+    expect(panel.textContent).toContain('Cumple el esquema');
+    expect(panel.textContent).toContain('Firma válida');
+    expect(panel.textContent).toContain('Descargar 20100000050-09-T001-1.zip');
+    expect(elemento.querySelector('.ok')?.textContent).toContain('cumple todas las reglas');
+  });
+
+  it('muestra el CDR observado con sus observaciones', async () => {
+    const { fixture, elemento, boton } = await crear();
+
+    boton('Enviar a SUNAT (simulado)').click();
+    http.expectOne('/guias/enviar').flush({
+      ticket: 'T-1',
+      codRespuesta: '0',
+      cdr: {
+        estado: 'Observada',
+        codigo: '0',
+        descripcion: 'La guía ha sido aceptada',
+        observaciones: [{ codigo: '4398', descripcion: 'Placa no registrada' }],
+      },
+      error: null,
+    });
+    await fixture.whenStable();
+
+    const cdr = elemento.querySelector('[data-panel=envio] .cdr')!;
+    expect(cdr.classList).toContain('observada');
+    expect(cdr.textContent).toContain('CDR: Observada');
+    expect(cdr.querySelector('li')?.textContent).toContain('4398');
+  });
+
+  it('consulta otra vez el ticket que sigue en proceso', async () => {
+    const { fixture, elemento, boton } = await crear();
+
+    boton('Enviar a SUNAT (simulado)').click();
+    http
+      .expectOne('/guias/enviar')
+      .flush({ ticket: 'T/2', codRespuesta: '98', cdr: null, error: null });
+    await fixture.whenStable();
+    expect(elemento.querySelector('[data-panel=envio]')?.textContent).toContain('En proceso');
+
+    boton('Consultar estado').click();
+    http.expectOne('/envios/T%2F2').flush({
+      ticket: 'T/2',
+      codRespuesta: '0',
+      cdr: { estado: 'Aceptada', codigo: '0', descripcion: 'Aceptada', observaciones: [] },
+      error: null,
+    });
+    await fixture.whenStable();
+
+    expect(elemento.querySelector('[data-panel=envio]')?.textContent).not.toContain('En proceso');
+    expect(elemento.querySelector('.cdr')?.textContent).toContain('CDR: Aceptada');
+  });
+
+  it('muestra el error de SUNAT cuando el envío termina sin CDR', async () => {
+    const { fixture, elemento, boton } = await crear();
+
+    boton('Enviar a SUNAT (simulado)').click();
+    http.expectOne('/guias/enviar').flush({
+      ticket: 'T-3',
+      codRespuesta: '99',
+      cdr: null,
+      error: { numError: '1034', desError: 'El RUC del nombre del archivo no coincide' },
+    });
+    await fixture.whenStable();
+
+    expect(elemento.querySelector('[data-panel=envio]')?.textContent).toContain('1034');
+  });
+
+  it('muestra el rechazo de SUNAT simulado antes de dar ticket', async () => {
+    const { fixture, elemento, boton } = await crear();
+
+    boton('Enviar a SUNAT (simulado)').click();
+    http.expectOne('/guias/enviar').flush(
+      {
+        title: 'SUNAT (simulado) no aceptó el archivo',
+        detail: 'Ya fue aceptada',
+        codigo: '2223',
+      },
+      { status: 422, statusText: 'Unprocessable Entity' },
+    );
+    await fixture.whenStable();
+
+    const panel = elemento.querySelector('[data-panel=rechazo]')?.textContent;
+    expect(panel).toContain('2223');
+    expect(panel).toContain('Ya fue aceptada');
+    expect(elemento.querySelector('[data-panel=envio]')).toBeNull();
   });
 
   it('muestra el proveedor solo con el motivo 02', async () => {

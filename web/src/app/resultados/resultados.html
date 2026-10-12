@@ -1,0 +1,80 @@
+@if (rechazo(); as r) {
+  <section class="panel rechazada" data-panel="rechazo">
+    <h2>SUNAT (simulado) no aceptó el archivo</h2>
+    <p>
+      <strong>{{ r.codigo }}</strong> {{ r.detalle }}
+    </p>
+    <p class="nota">No se emitió ticket: el archivo no llegó a revisarse.</p>
+  </section>
+}
+
+@if (envio(); as e) {
+  <section class="panel" data-panel="envio">
+    <h2>Envío</h2>
+    <p>
+      Ticket <code>{{ e.ticket }}</code>
+    </p>
+
+    @switch (e.codRespuesta) {
+      @case ('98') {
+        <p>En proceso: SUNAT todavía no termina de revisar la guía.</p>
+        <button type="button" (click)="consultar.emit(e.ticket)" [disabled]="cargando()">
+          Consultar estado
+        </button>
+      }
+      @case ('99') {
+        @if (e.error; as error) {
+          <p class="rechazada">
+            Terminado con error, sin CDR: <strong>{{ error.numError }}</strong> {{ error.desError }}
+          </p>
+        }
+      }
+    }
+
+    @if (e.cdr; as cdr) {
+      <div class="cdr" [class]="cdr.estado.toLowerCase()">
+        <h3>CDR: {{ cdr.estado }}</h3>
+        <p>
+          <strong>{{ cdr.codigo }}</strong> {{ cdr.descripcion }}
+        </p>
+        @if (cdr.observaciones.length > 0) {
+          <ul>
+            @for (o of cdr.observaciones; track $index) {
+              <li>
+                <strong>{{ o.codigo }}</strong> {{ o.descripcion }}
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </section>
+}
+
+@if (generacion(); as g) {
+  <section class="panel" data-panel="generacion">
+    <h2>XML generado</h2>
+    <ul class="comprobaciones">
+      <li [class]="g.cumpleEsquema ? 'aceptada' : 'rechazada'">
+        {{ g.cumpleEsquema ? 'Cumple' : 'No cumple' }} el esquema UBL 2.1 (XSD)
+      </li>
+      <li [class]="g.firmaValida ? 'aceptada' : 'rechazada'">
+        Firma {{ g.firmaValida ? 'válida' : 'inválida' }}
+      </li>
+    </ul>
+    @if (g.erroresEsquema.length > 0) {
+      <ul class="rechazada">
+        @for (x of g.erroresEsquema; track $index) {
+          <li>Línea {{ x.linea }}, columna {{ x.columna }}: {{ x.mensaje }}</li>
+        }
+      </ul>
+    }
+    <p>
+      <button type="button" (click)="descargarZip(g)">Descargar {{ g.nombreArchivo }}</button>
+      <small class="nota"
+        >SHA-256 del ZIP: <code>{{ g.hashZip }}</code></small
+      >
+    </p>
+    <pre class="xml">{{ g.xmlFirmado }}</pre>
+  </section>
+}
