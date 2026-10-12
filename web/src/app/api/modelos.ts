@@ -11,6 +11,14 @@ export const MOTIVOS = [
 
 export type CodigoMotivo = (typeof MOTIVOS)[number]['codigo'];
 
+/** Catálogo 06 de SUNAT: documentos de identidad que la API acepta. */
+export const TIPOS_DOCUMENTO = [
+  { codigo: '1', nombre: 'DNI' },
+  { codigo: '4', nombre: 'Carné de extranjería' },
+  { codigo: '6', nombre: 'RUC' },
+  { codigo: '7', nombre: 'Pasaporte' },
+] as const;
+
 export interface Contribuyente {
   ruc: string;
   razonSocial: string;

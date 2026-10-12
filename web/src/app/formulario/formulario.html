@@ -1,0 +1,167 @@
+<form [formGroup]="form()" (submit)="$event.preventDefault()">
+  <fieldset>
+    <legend>Guía</legend>
+    <label>Serie <input formControlName="serie" maxlength="4" placeholder="T001" /></label>
+    <label>Número <input formControlName="numero" type="number" min="1" /></label>
+    <label>Fecha de emisión <input formControlName="fechaEmision" type="date" /></label>
+    <label>Hora de emisión <input formControlName="horaEmision" type="time" step="1" /></label>
+  </fieldset>
+
+  <fieldset formGroupName="remitente">
+    <legend>Remitente</legend>
+    <label>RUC <input formControlName="ruc" maxlength="11" /></label>
+    <label class="ancho">Razón social <input formControlName="razonSocial" /></label>
+  </fieldset>
+
+  <fieldset formGroupName="destinatario">
+    <legend>Destinatario</legend>
+    <label>
+      Tipo de documento
+      <select formControlName="tipoDocumento">
+        @for (t of tiposDocumento; track t.codigo) {
+          <option [value]="t.codigo">{{ t.nombre }}</option>
+        }
+      </select>
+    </label>
+    <label>Número de documento <input formControlName="numeroDocumento" /></label>
+    <label class="ancho">Nombre o razón social <input formControlName="nombre" /></label>
+    @if (form().controls.motivoTraslado.value !== '01') {
+      <p class="nota">En este motivo el destinatario es el mismo remitente.</p>
+    }
+  </fieldset>
+
+  @if (conProveedor()) {
+    <fieldset formGroupName="proveedor" data-seccion="proveedor">
+      <legend>Proveedor</legend>
+      <label>RUC <input formControlName="ruc" maxlength="11" /></label>
+      <label class="ancho">Razón social <input formControlName="razonSocial" /></label>
+    </fieldset>
+  }
+
+  <fieldset>
+    <legend>Traslado</legend>
+    <label>Fecha de inicio <input formControlName="fechaInicioTraslado" type="date" /></label>
+    <label
+      >Peso bruto total <input formControlName="pesoBrutoTotal" type="number" min="0" step="0.001"
+    /></label>
+    <label>Unidad de peso <input formControlName="unidadPeso" readonly /></label>
+  </fieldset>
+
+  <fieldset formGroupName="partida">
+    <legend>Punto de partida</legend>
+    <label>Ubigeo <input formControlName="ubigeo" maxlength="6" /></label>
+    <label class="ancho">Dirección <input formControlName="direccion" /></label>
+  </fieldset>
+
+  <fieldset formGroupName="llegada">
+    <legend>Punto de llegada</legend>
+    <label>Ubigeo <input formControlName="ubigeo" maxlength="6" /></label>
+    <label class="ancho">Dirección <input formControlName="direccion" /></label>
+  </fieldset>
+
+  <fieldset formArrayName="bienes" data-seccion="bienes">
+    <legend>Bienes</legend>
+    @for (bien of form().controls.bienes.controls; track bien; let i = $index) {
+      <div class="fila" [formGroupName]="i">
+        <label class="ancho">Descripción <input formControlName="descripcion" /></label>
+        <label>Cantidad <input formControlName="cantidad" type="number" min="0" /></label>
+        <label>Unidad <input formControlName="unidadMedida" placeholder="NIU" /></label>
+        <label>Código <input formControlName="codigo" /></label>
+        <button
+          type="button"
+          class="quitar"
+          (click)="form().controls.bienes.removeAt(i)"
+          [disabled]="form().controls.bienes.length === 1"
+          [attr.aria-label]="'Quitar bien ' + (i + 1)"
+        >
+          Quitar
+        </button>
+      </div>
+    }
+    <button type="button" (click)="agregarBien()">Agregar bien</button>
+  </fieldset>
+
+  <fieldset formGroupName="transporte">
+    <legend>Transporte</legend>
+    <div class="modalidad" role="radiogroup" aria-label="Modalidad de transporte">
+      <label class="opcion"
+        ><input type="radio" formControlName="modalidad" value="Privado" /> Privado</label
+      >
+      <label class="opcion"
+        ><input type="radio" formControlName="modalidad" value="Publico" /> Público</label
+      >
+    </div>
+
+    @if (esPublico()) {
+      <div class="fila" formGroupName="transportista" data-seccion="transportista">
+        <label>RUC del transportista <input formControlName="ruc" maxlength="11" /></label>
+        <label class="ancho">Razón social <input formControlName="razonSocial" /></label>
+      </div>
+    } @else {
+      <div formArrayName="vehiculos" data-seccion="vehiculos">
+        <h3>Vehículos</h3>
+        @for (
+          vehiculo of form().controls.transporte.controls.vehiculos.controls;
+          track vehiculo;
+          let i = $index
+        ) {
+          <div class="fila">
+            <label>Placa <input [formControlName]="i" maxlength="8" placeholder="ABC123" /></label>
+            <button
+              type="button"
+              class="quitar"
+              (click)="form().controls.transporte.controls.vehiculos.removeAt(i)"
+              [disabled]="form().controls.transporte.controls.vehiculos.length === 1"
+              [attr.aria-label]="'Quitar vehículo ' + (i + 1)"
+            >
+              Quitar
+            </button>
+          </div>
+        }
+        <button type="button" (click)="agregarVehiculo()">Agregar vehículo</button>
+      </div>
+
+      <div formArrayName="conductores" data-seccion="conductores">
+        <h3>Conductores</h3>
+        @for (
+          conductor of form().controls.transporte.controls.conductores.controls;
+          track conductor;
+          let i = $index
+        ) {
+          <div class="fila" [formGroupName]="i">
+            <label>
+              Documento
+              <select formControlName="tipoDocumento">
+                @for (t of tiposDocumento; track t.codigo) {
+                  <option [value]="t.codigo">{{ t.nombre }}</option>
+                }
+              </select>
+            </label>
+            <label>Número <input formControlName="numeroDocumento" /></label>
+            <label>Nombres <input formControlName="nombres" /></label>
+            <label>Apellidos <input formControlName="apellidos" /></label>
+            <label>Licencia <input formControlName="licencia" /></label>
+            <button
+              type="button"
+              class="quitar"
+              (click)="form().controls.transporte.controls.conductores.removeAt(i)"
+              [disabled]="form().controls.transporte.controls.conductores.length === 1"
+              [attr.aria-label]="'Quitar conductor ' + (i + 1)"
+            >
+              Quitar
+            </button>
+          </div>
+        }
+        <button type="button" (click)="agregarConductor()">Agregar conductor</button>
+      </div>
+    }
+  </fieldset>
+
+  <fieldset>
+    <legend>Observaciones</legend>
+    <label class="completo">
+      Opcional, hasta 250 caracteres
+      <textarea formControlName="observaciones" rows="2" maxlength="250"></textarea>
+    </label>
+  </fieldset>
+</form>
