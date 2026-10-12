@@ -6,18 +6,18 @@
 <main>
   <section class="acciones">
     <label>
-      Motivo
-      <select [ngModel]="motivo()" (ngModelChange)="motivo.set($event)" name="motivo">
+      Motivo de traslado
+      <select [formControl]="form.controls.motivoTraslado" name="motivo">
         @for (m of motivos; track m.codigo) {
           <option [value]="m.codigo">{{ m.codigo }} - {{ m.nombre }}</option>
         }
       </select>
     </label>
     <button type="button" (click)="cargarEjemplo()" [disabled]="cargando()">Cargar ejemplo</button>
-    <button type="button" (click)="validar()" [disabled]="cargando() || !guia()">Validar</button>
+    <button type="button" (click)="validar()" [disabled]="cargando()">Validar</button>
   </section>
 
-  @if (errorConexion(); as mensaje) {
+  @if (errorApi(); as mensaje) {
     <p class="error" role="alert">{{ mensaje }}</p>
   }
 
@@ -36,7 +36,10 @@
     }
   }
 
-  @if (guia(); as g) {
-    <pre class="json">{{ g | json }}</pre>
-  }
+  <app-formulario [form]="form" />
+
+  <details>
+    <summary>JSON que se envía a la API</summary>
+    <pre class="json">{{ guia() | json }}</pre>
+  </details>
 </main>
