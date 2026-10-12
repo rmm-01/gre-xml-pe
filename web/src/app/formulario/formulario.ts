@@ -1,6 +1,7 @@
 import { Component, inject, input } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { TIPOS_DOCUMENTO } from '../api/modelos';
+import { ErrorCampo } from './error-campo';
 import {
   FormularioGuia,
   MOTIVO_CON_PROVEEDOR,
@@ -15,7 +16,7 @@ import {
  */
 @Component({
   selector: 'app-formulario',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ErrorCampo],
   templateUrl: './formulario.html',
   styleUrl: './formulario.scss',
 })

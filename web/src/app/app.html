@@ -3,6 +3,10 @@
   <p>Genera, firma y envía una guía a un SUNAT simulado. Nunca se conecta a SUNAT.</p>
 </header>
 
+<p class="aviso" role="note">
+  Demostración: la firma usa un certificado autogenerado y el envío es simulado. Nada llega a SUNAT.
+</p>
+
 <main>
   <section class="acciones">
     <label>
@@ -15,26 +19,44 @@
     </label>
     <button type="button" (click)="cargarEjemplo()" [disabled]="cargando()">Cargar ejemplo</button>
     <button type="button" (click)="validar()" [disabled]="cargando()">Validar</button>
+    <button type="button" (click)="generar()" [disabled]="cargando()">Generar XML</button>
+    <button type="button" class="principal" (click)="enviar()" [disabled]="cargando()">
+      Enviar a SUNAT (simulado)
+    </button>
   </section>
 
   @if (errorApi(); as mensaje) {
     <p class="error" role="alert">{{ mensaje }}</p>
   }
 
-  @if (validacion(); as resultado) {
-    @if (resultado.valida) {
+  @if (errores(); as lista) {
+    @if (lista.length === 0) {
       <p class="ok">La guía cumple todas las reglas.</p>
     } @else {
-      <ul class="errores">
-        @for (e of resultado.errores; track e.codigo + e.campo) {
-          <li>
-            <code>{{ e.campo }}</code> {{ e.mensaje }}
-            <small>{{ e.codigo }}{{ e.codigoSunat ? ' · SUNAT ' + e.codigoSunat : '' }}</small>
-          </li>
-        }
-      </ul>
+      <div class="errores">
+        <p>
+          La guía tiene {{ lista.length }} {{ lista.length === 1 ? 'error' : 'errores' }}, marcados
+          en cada campo:
+        </p>
+        <ul>
+          @for (e of lista; track e.codigo + e.campo) {
+            <li>
+              <code>{{ e.campo }}</code> {{ e.mensaje }}
+              <small>{{ e.codigo }}{{ e.codigoSunat ? ' · SUNAT ' + e.codigoSunat : '' }}</small>
+            </li>
+          }
+        </ul>
+      </div>
     }
   }
+
+  <app-resultados
+    [generacion]="generacion()"
+    [envio]="envio()"
+    [rechazo]="rechazo()"
+    [cargando]="cargando()"
+    (consultar)="consultarEnvio($event)"
+  />
 
   <app-formulario [form]="form" />
 
