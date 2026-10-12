@@ -1,20 +1,38 @@
 <form [formGroup]="form()" (submit)="$event.preventDefault()">
   <fieldset>
     <legend>Guía</legend>
-    <label>Serie <input formControlName="serie" maxlength="4" placeholder="T001" /></label>
-    <label>Número <input formControlName="numero" type="number" min="1" /></label>
-    <label>Fecha de emisión <input formControlName="fechaEmision" type="date" /></label>
-    <label>Hora de emisión <input formControlName="horaEmision" type="time" step="1" /></label>
+    <label
+      >Serie <input formControlName="serie" maxlength="4" placeholder="T001" />
+      <app-error-campo nombre="serie"
+    /></label>
+    <label
+      >Número <input formControlName="numero" type="number" min="1" />
+      <app-error-campo nombre="numero"
+    /></label>
+    <label
+      >Fecha de emisión <input formControlName="fechaEmision" type="date" />
+      <app-error-campo nombre="fechaEmision"
+    /></label>
+    <label
+      >Hora de emisión <input formControlName="horaEmision" type="time" step="1" />
+      <app-error-campo nombre="horaEmision"
+    /></label>
+    <app-error-campo nombre="motivoTraslado" />
   </fieldset>
 
   <fieldset formGroupName="remitente">
     <legend>Remitente</legend>
-    <label>RUC <input formControlName="ruc" maxlength="11" /></label>
-    <label class="ancho">Razón social <input formControlName="razonSocial" /></label>
+    <label
+      >RUC <input formControlName="ruc" maxlength="11" /> <app-error-campo nombre="ruc"
+    /></label>
+    <label class="ancho"
+      >Razón social <input formControlName="razonSocial" /> <app-error-campo nombre="razonSocial"
+    /></label>
   </fieldset>
 
   <fieldset formGroupName="destinatario">
     <legend>Destinatario</legend>
+    <app-error-campo />
     <label>
       Tipo de documento
       <select formControlName="tipoDocumento">
@@ -22,9 +40,15 @@
           <option [value]="t.codigo">{{ t.nombre }}</option>
         }
       </select>
+      <app-error-campo nombre="tipoDocumento" />
     </label>
-    <label>Número de documento <input formControlName="numeroDocumento" /></label>
-    <label class="ancho">Nombre o razón social <input formControlName="nombre" /></label>
+    <label
+      >Número de documento <input formControlName="numeroDocumento" />
+      <app-error-campo nombre="numeroDocumento"
+    /></label>
+    <label class="ancho"
+      >Nombre o razón social <input formControlName="nombre" /> <app-error-campo nombre="nombre"
+    /></label>
     @if (form().controls.motivoTraslado.value !== '01') {
       <p class="nota">En este motivo el destinatario es el mismo remitente.</p>
     }
@@ -33,40 +57,73 @@
   @if (conProveedor()) {
     <fieldset formGroupName="proveedor" data-seccion="proveedor">
       <legend>Proveedor</legend>
-      <label>RUC <input formControlName="ruc" maxlength="11" /></label>
-      <label class="ancho">Razón social <input formControlName="razonSocial" /></label>
+      <app-error-campo />
+      <label
+        >RUC <input formControlName="ruc" maxlength="11" /> <app-error-campo nombre="ruc"
+      /></label>
+      <label class="ancho"
+        >Razón social <input formControlName="razonSocial" /> <app-error-campo nombre="razonSocial"
+      /></label>
     </fieldset>
   }
 
   <fieldset>
     <legend>Traslado</legend>
-    <label>Fecha de inicio <input formControlName="fechaInicioTraslado" type="date" /></label>
     <label
-      >Peso bruto total <input formControlName="pesoBrutoTotal" type="number" min="0" step="0.001"
+      >Fecha de inicio <input formControlName="fechaInicioTraslado" type="date" />
+      <app-error-campo nombre="fechaInicioTraslado"
     /></label>
-    <label>Unidad de peso <input formControlName="unidadPeso" readonly /></label>
+    <label
+      >Peso bruto total
+      <input formControlName="pesoBrutoTotal" type="number" min="0" step="0.001" />
+      <app-error-campo nombre="pesoBrutoTotal"
+    /></label>
+    <label
+      >Unidad de peso <input formControlName="unidadPeso" readonly />
+      <app-error-campo nombre="unidadPeso"
+    /></label>
   </fieldset>
 
   <fieldset formGroupName="partida">
     <legend>Punto de partida</legend>
-    <label>Ubigeo <input formControlName="ubigeo" maxlength="6" /></label>
-    <label class="ancho">Dirección <input formControlName="direccion" /></label>
+    <app-error-campo />
+    <label
+      >Ubigeo <input formControlName="ubigeo" maxlength="6" /> <app-error-campo nombre="ubigeo"
+    /></label>
+    <label class="ancho"
+      >Dirección <input formControlName="direccion" /> <app-error-campo nombre="direccion"
+    /></label>
   </fieldset>
 
   <fieldset formGroupName="llegada">
     <legend>Punto de llegada</legend>
-    <label>Ubigeo <input formControlName="ubigeo" maxlength="6" /></label>
-    <label class="ancho">Dirección <input formControlName="direccion" /></label>
+    <app-error-campo />
+    <label
+      >Ubigeo <input formControlName="ubigeo" maxlength="6" /> <app-error-campo nombre="ubigeo"
+    /></label>
+    <label class="ancho"
+      >Dirección <input formControlName="direccion" /> <app-error-campo nombre="direccion"
+    /></label>
   </fieldset>
 
   <fieldset formArrayName="bienes" data-seccion="bienes">
     <legend>Bienes</legend>
+    <app-error-campo />
     @for (bien of form().controls.bienes.controls; track bien; let i = $index) {
       <div class="fila" [formGroupName]="i">
-        <label class="ancho">Descripción <input formControlName="descripcion" /></label>
-        <label>Cantidad <input formControlName="cantidad" type="number" min="0" /></label>
-        <label>Unidad <input formControlName="unidadMedida" placeholder="NIU" /></label>
-        <label>Código <input formControlName="codigo" /></label>
+        <label class="ancho"
+          >Descripción <input formControlName="descripcion" />
+          <app-error-campo nombre="descripcion"
+        /></label>
+        <label
+          >Cantidad <input formControlName="cantidad" type="number" min="0" />
+          <app-error-campo nombre="cantidad"
+        /></label>
+        <label
+          >Unidad <input formControlName="unidadMedida" placeholder="NIU" />
+          <app-error-campo nombre="unidadMedida"
+        /></label>
+        <label>Código <input formControlName="codigo" /> <app-error-campo nombre="codigo" /></label>
         <button
           type="button"
           class="quitar"
@@ -94,19 +151,30 @@
 
     @if (esPublico()) {
       <div class="fila" formGroupName="transportista" data-seccion="transportista">
-        <label>RUC del transportista <input formControlName="ruc" maxlength="11" /></label>
-        <label class="ancho">Razón social <input formControlName="razonSocial" /></label>
+        <app-error-campo />
+        <label
+          >RUC del transportista <input formControlName="ruc" maxlength="11" />
+          <app-error-campo nombre="ruc"
+        /></label>
+        <label class="ancho"
+          >Razón social <input formControlName="razonSocial" />
+          <app-error-campo nombre="razonSocial"
+        /></label>
       </div>
     } @else {
       <div formArrayName="vehiculos" data-seccion="vehiculos">
         <h3>Vehículos</h3>
+        <app-error-campo />
         @for (
           vehiculo of form().controls.transporte.controls.vehiculos.controls;
           track vehiculo;
           let i = $index
         ) {
           <div class="fila">
-            <label>Placa <input [formControlName]="i" maxlength="8" placeholder="ABC123" /></label>
+            <label
+              >Placa <input [formControlName]="i" maxlength="8" placeholder="ABC123" />
+              <app-error-campo [nombre]="i"
+            /></label>
             <button
               type="button"
               class="quitar"
@@ -123,6 +191,7 @@
 
       <div formArrayName="conductores" data-seccion="conductores">
         <h3>Conductores</h3>
+        <app-error-campo />
         @for (
           conductor of form().controls.transporte.controls.conductores.controls;
           track conductor;
@@ -136,11 +205,21 @@
                   <option [value]="t.codigo">{{ t.nombre }}</option>
                 }
               </select>
+              <app-error-campo nombre="tipoDocumento" />
             </label>
-            <label>Número <input formControlName="numeroDocumento" /></label>
-            <label>Nombres <input formControlName="nombres" /></label>
-            <label>Apellidos <input formControlName="apellidos" /></label>
-            <label>Licencia <input formControlName="licencia" /></label>
+            <label
+              >Número <input formControlName="numeroDocumento" />
+              <app-error-campo nombre="numeroDocumento"
+            /></label>
+            <label
+              >Nombres <input formControlName="nombres" /> <app-error-campo nombre="nombres"
+            /></label>
+            <label
+              >Apellidos <input formControlName="apellidos" /> <app-error-campo nombre="apellidos"
+            /></label>
+            <label
+              >Licencia <input formControlName="licencia" /> <app-error-campo nombre="licencia"
+            /></label>
             <button
               type="button"
               class="quitar"
@@ -162,6 +241,7 @@
     <label class="completo">
       Opcional, hasta 250 caracteres
       <textarea formControlName="observaciones" rows="2" maxlength="250"></textarea>
+      <app-error-campo nombre="observaciones" />
     </label>
   </fieldset>
 </form>
